@@ -28,11 +28,18 @@ export default function ScoreCard({ data }) {
   }
 
   const SCORE_LABELS = {
+    // Standard interview rubric
     clarity_structure: 'Clarity & Structure',
     relevance: 'Relevance',
     star_format: 'STAR Format',
     specificity: 'Specificity',
     impact: 'Impact',
+    // Case study rubric
+    problem_structuring: 'Problem Structuring (MECE)',
+    hypothesis_driven: 'Hypothesis-Driven Thinking',
+    analytical_rigor: 'Analytical Rigor',
+    synthesis: 'Synthesis & Insights',
+    recommendation: 'Recommendation Quality',
   }
 
   return (

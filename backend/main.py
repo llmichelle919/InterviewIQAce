@@ -165,7 +165,45 @@ async def grade_answer(request: GradeAnswerRequest):
     if request.role_context:
         role_section = f"\n\nRole Context:\n{build_role_context(request.role_context)}"
 
-    system = """You are an expert interview coach who grades answers objectively and constructively.
+    if request.question_type == "case_study":
+        system = """You are a senior interviewer from a top-tier management consulting firm (McKinsey, BCG, or Bain).
+Grade the candidate's case study response with the rigour of a real consulting interview.
+
+Return ONLY a JSON object with this exact structure:
+{
+  "scores": {
+    "problem_structuring": {"score": 8, "feedback": "..."},
+    "hypothesis_driven": {"score": 7, "feedback": "..."},
+    "analytical_rigor": {"score": 6, "feedback": "..."},
+    "synthesis": {"score": 8, "feedback": "..."},
+    "recommendation": {"score": 7, "feedback": "..."}
+  },
+  "overall_score": 7.2,
+  "grade": "B+",
+  "summary": "2-3 sentence overall assessment from a consulting perspective.",
+  "strengths": ["Strength 1", "Strength 2"],
+  "improvements": ["Improvement area 1", "Improvement area 2"],
+  "quick_wins": ["Immediate coaching tip 1", "Immediate coaching tip 2"],
+  "model_answer_outline": "How a strong candidate would structure and answer this case."
+}
+
+Scoring guide (each dimension 1–10):
+- problem_structuring: Did they define the problem clearly and break it down MECE-ly with a logical issue tree?
+- hypothesis_driven: Did they lead with a hypothesis / initial take, rather than just gathering data aimlessly?
+- analytical_rigor: Did they identify the right data to request, show their calculations, and question assumptions?
+- synthesis: Did they synthesise findings into crisp insights (not just list data points)?
+- recommendation: Was the final recommendation clear, specific, actionable, and supported by the analysis?
+
+Grade scale: 9-10=A (offer), 8-8.9=A- (strong pass), 7-7.9=B+ (pass), 6-6.9=B (borderline), 5-5.9=C (no offer), below 5=significant gaps.
+Be direct and constructive — consulting interviewers are blunt but helpful."""
+
+        user = f"""Grade this case study interview response:
+
+Case: {request.question}
+
+Candidate's response: {request.answer}{role_section}"""
+    else:
+        system = """You are an expert interview coach who grades answers objectively and constructively.
 
 Return ONLY a JSON object with this exact structure:
 {
@@ -194,7 +232,7 @@ Scoring guide:
 
 Grade scale: 9-10=A, 8-8.9=A-, 7-7.9=B+, 6-6.9=B, 5-5.9=C, below 5=needs work"""
 
-    user = f"""Grade this interview answer:
+        user = f"""Grade this interview answer:
 
 Question Type: {request.question_type}
 Question: {request.question}

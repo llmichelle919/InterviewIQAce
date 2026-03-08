@@ -10,8 +10,16 @@ const QUESTION_TYPES = [
   { value: 'culture_fit', label: 'Culture Fit' },
   { value: 'leadership', label: 'Leadership' },
   { value: 'problem_solving', label: 'Problem Solving' },
+  { value: 'case_study', label: 'Case Study (Consulting)' },
   { value: 'general', label: 'General' },
 ]
+
+const PLACEHOLDER_BY_TYPE = {
+  behavioral: 'Use STAR: Situation → Task → Action → Result. Be specific and quantify your impact.',
+  case_study: 'Walk through your structured approach:\n1. Clarify the problem and objective\n2. State your hypothesis / initial take\n3. Lay out your framework / issue tree\n4. Walk through your analysis, show your maths\n5. Synthesise findings and give a clear recommendation with risks\n\nTip: Think out loud — interviewers grade your process, not just the answer.',
+  situational: 'Describe how you would approach this situation step by step.',
+  general: 'Type your answer here...',
+}
 
 export default function PracticeMode({ roleContext, generatedData, initialQuestion }) {
   const [inputMode, setInputMode] = useState('text') // 'text' | 'voice'
@@ -163,7 +171,7 @@ export default function PracticeMode({ roleContext, generatedData, initialQuesti
             <label className="label">Your Answer</label>
             <textarea
               className="input min-h-[180px] resize-y"
-              placeholder="Type your answer here. For behavioral questions, try to follow STAR: Situation → Task → Action → Result..."
+              placeholder={PLACEHOLDER_BY_TYPE[questionType] || PLACEHOLDER_BY_TYPE.general}
               value={answer}
               onChange={(e) => { setAnswer(e.target.value); setGradeResult(null) }}
             />

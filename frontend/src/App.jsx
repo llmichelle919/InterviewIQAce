@@ -4,17 +4,19 @@ import QuestionDashboard from './components/QuestionDashboard'
 import PracticeMode from './components/PracticeMode'
 import StarFormatter from './components/StarFormatter'
 import QuestionBank from './components/QuestionBank'
+import CaseStudyBank from './components/CaseStudyBank'
 
 const TABS = [
-  { id: 'setup',     label: 'Role Setup',     emoji: '🎯', desc: 'Add job & context' },
-  { id: 'questions', label: 'Questions',       emoji: '❓', desc: 'AI-generated list' },
-  { id: 'practice',  label: 'Practice',        emoji: '🎤', desc: 'Answer & get graded' },
-  { id: 'star',      label: 'STAR Stories',    emoji: '⭐', desc: 'Format your stories' },
-  { id: 'bank',      label: 'Question Bank',   emoji: '📚', desc: 'Browse all questions' },
+  { id: 'setup',     label: 'Setup',    emoji: '🎯' },
+  { id: 'questions', label: 'My Qs',    emoji: '❓', requiresSetup: true },
+  { id: 'practice',  label: 'Practice', emoji: '🎤' },
+  { id: 'star',      label: 'STAR',     emoji: '⭐' },
+  { id: 'library',   label: 'Library',  emoji: '📚' },
 ]
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('setup')
+  const [libraryView, setLibraryView] = useState('bank')
   const [roleContext, setRoleContext] = useState(null)
   const [generatedData, setGeneratedData] = useState(null)
   const [practiceQuestion, setPracticeQuestion] = useState(null)
@@ -31,58 +33,30 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div className="min-h-screen flex flex-col bg-slate-50">
+      {/* Compact header */}
+      <header
+        className="bg-white border-b border-slate-200 sticky top-0 z-10"
+        style={{ paddingTop: 'env(safe-area-inset-top)' }}
+      >
+        <div className="px-4 py-3 flex items-center justify-between max-w-3xl mx-auto w-full">
           <div className="flex items-center gap-2">
-            <span className="text-2xl">🎯</span>
+            <span className="text-xl">🎯</span>
             <div>
-              <h1 className="font-bold text-slate-900 leading-none">InterviewAce</h1>
-              <p className="text-xs text-slate-400">AI-powered interview preparation</p>
+              <h1 className="font-bold text-slate-900 leading-tight">InterviewAce</h1>
+              <p className="text-[10px] text-slate-400 leading-tight hidden sm:block">AI-powered interview prep</p>
             </div>
           </div>
           {roleContext && (
-            <div className="hidden sm:flex items-center gap-2 text-xs text-slate-500 bg-blue-50 border border-blue-100 rounded-lg px-3 py-1.5">
-              <span className="text-blue-500">✓</span>
-              <span className="font-medium text-blue-700">
-                {roleContext.company_name || 'Role'} loaded
-              </span>
-            </div>
+            <span className="text-xs font-medium text-blue-700 bg-blue-50 border border-blue-100 rounded-full px-3 py-1 max-w-[140px] truncate">
+              ✓ {roleContext.company_name || 'Role'} ready
+            </span>
           )}
         </div>
       </header>
 
-      {/* Tab navigation */}
-      <nav className="bg-white border-b border-slate-200">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="flex overflow-x-auto">
-            {TABS.map((tab) => {
-              const locked = (tab.id === 'questions') && !generatedData
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => !locked && setActiveTab(tab.id)}
-                  disabled={locked}
-                  className={`flex items-center gap-1.5 px-4 py-3.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors
-                    ${activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : locked
-                        ? 'border-transparent text-slate-300 cursor-not-allowed'
-                        : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
-                    }`}
-                >
-                  <span>{tab.emoji}</span>
-                  <span>{tab.label}</span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
-      </nav>
-
-      {/* Main content */}
-      <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-6">
+      {/* Main content — pb-28 leaves room above bottom nav + safe area */}
+      <main className="flex-1 px-4 py-5 pb-28 max-w-3xl mx-auto w-full">
         {activeTab === 'setup' && (
           <RoleSetup onComplete={handleRoleComplete} existing={roleContext} />
         )}
@@ -97,8 +71,72 @@ export default function App() {
           />
         )}
         {activeTab === 'star' && <StarFormatter />}
-        {activeTab === 'bank' && <QuestionBank onPractice={handlePractice} />}
+        {activeTab === 'library' && (
+          <div className="space-y-4">
+            {/* iOS-style segment control */}
+            <div className="flex bg-slate-100 rounded-xl p-1">
+              <button
+                onClick={() => setLibraryView('bank')}
+                className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+                  libraryView === 'bank'
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'text-slate-500 active:text-slate-700'
+                }`}
+              >
+                📚 Question Bank
+              </button>
+              <button
+                onClick={() => setLibraryView('cases')}
+                className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+                  libraryView === 'cases'
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'text-slate-500 active:text-slate-700'
+                }`}
+              >
+                💼 Case Studies
+              </button>
+            </div>
+            {libraryView === 'bank'
+              ? <QuestionBank onPractice={handlePractice} />
+              : <CaseStudyBank onPractice={handlePractice} />
+            }
+          </div>
+        )}
       </main>
+
+      {/* iPhone-style bottom tab bar */}
+      <nav
+        className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur border-t border-slate-200 z-20"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      >
+        <div className="flex max-w-lg mx-auto">
+          {TABS.map((tab) => {
+            const locked = tab.requiresSetup && !generatedData
+            const isActive = activeTab === tab.id
+            return (
+              <button
+                key={tab.id}
+                onClick={() => !locked && setActiveTab(tab.id)}
+                disabled={locked}
+                className={`flex-1 flex flex-col items-center justify-center py-2 gap-0.5 min-h-[52px] transition-all
+                  ${isActive
+                    ? 'text-blue-600'
+                    : locked
+                      ? 'text-slate-300'
+                      : 'text-slate-500 active:text-slate-800 active:scale-95'
+                  }`}
+              >
+                <span className={`text-[22px] leading-none transition-transform duration-150 ${isActive ? 'scale-110' : ''}`}>
+                  {tab.emoji}
+                </span>
+                <span className={`text-[10px] leading-none mt-0.5 ${isActive ? 'font-semibold' : 'font-medium'}`}>
+                  {tab.label}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      </nav>
     </div>
   )
 }
